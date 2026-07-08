@@ -2,4 +2,7 @@ node_modules/
 .env
 *.log
 npm-debug.log*
-TICKET_LOG/
+TICKET_LOG/*
+!TICKET_LOG/db/
+TICKET_LOG/db/*
+!TICKET_LOG/db/leveling.json
