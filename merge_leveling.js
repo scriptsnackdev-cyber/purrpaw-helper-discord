@@ -76,15 +76,18 @@ function mergeDbs() {
       }
     }
 
-    // Write output to merged file
-    fs.writeFileSync(outputFile, JSON.stringify(merged, null, 2), 'utf8');
+    // Backup current leveling.json to leveling.json.bak2
+    const backupFile = path.join(__dirname, 'TICKET_LOG', 'db', 'leveling.json.bak2');
+    fs.renameSync(fileA, backupFile);
+    console.log(`📦 Backed up current active file to: ${backupFile}`);
 
-    console.log('\n✅ Merge Completed Successfully!');
+    // Write output directly to leveling.json
+    fs.writeFileSync(fileA, JSON.stringify(merged, null, 2), 'utf8');
+
+    console.log('\n✅ Merge Completed and Applied Successfully!');
     console.log(`- Stitched users with combined XP: ${userMergeCount}`);
     console.log(`- New users added: ${newUsersCount}`);
-    console.log(`- Merged output saved to: ${outputFile}`);
-    console.log('\n👉 To apply this, check the merged file and run:');
-    console.log(`   mv "${outputFile}" "${fileA}"`);
+    console.log(`- Saved merged output directly to: ${fileA}`);
   } catch (error) {
     console.error('❌ An error occurred during merging:', error);
   }
