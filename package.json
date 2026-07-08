@@ -1,0 +1,16 @@
+{
+  "name": "purrpaw-helper-discord",
+  "version": "1.0.0",
+  "description": "Discord Bot for linking Discord accounts to PurrPaw profiles and rewarding PAW",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "^1.0.2",
+    "@supabase/supabase-js": "^2.43.0",
+    "discord.js": "^14.15.0",
+    "dotenv": "^16.4.5"
+  }
+}
