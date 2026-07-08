@@ -17,6 +17,7 @@ const {
   StringSelectMenuBuilder
 } = require('discord.js');
 const { createClient } = require('@supabase/supabase-js');
+const ws = require('ws');
 const fs = require('fs');
 const path = require('path');
 const { registerSystemFonts, generateLevelUpCard, generateRankCard, generateLeaderboardCard, generateTarotOneCard, generateTarotThreeCards } = require('./canvas_utils');
@@ -34,7 +35,12 @@ if (!process.env.DISCORD_TOKEN || !process.env.ALLOWED_GUILD_ID) {
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
+  process.env.SUPABASE_SERVICE_ROLE_KEY,
+  {
+    realtime: {
+      transport: ws,
+    },
+  }
 );
 
 // Ensure TICKET_LOG subdirectories exist
