@@ -346,6 +346,7 @@ const ROLES = {
   ACTIVE_TICKET: process.env.DISCORD_ROLE_ACTIVE_TICKET || '1520385096954151115',
   NEWCOMER: process.env.DISCORD_ROLE_NEWCOMER || '1518536210769772555',
   MEMBER: process.env.DISCORD_ROLE_MEMBER || '1518536208785870868',
+  SUPPORTER: process.env.DISCORD_ROLE_SUPPORTER || '',
   STAFF: process.env.DISCORD_ROLE_STAFF || '1520446127357300938',
   MODERATOR: process.env.DISCORD_ROLE_MODERATOR || '1518536207020064828',
   ADMIN: process.env.DISCORD_ROLE_ADMIN || '1518536204637704292'
@@ -662,14 +663,14 @@ async function handleTarotReading(interaction, type) {
       const attachment = new AttachmentBuilder(imageBuffer, { name: `tarot-${card.id}.png` });
 
       const details = isReversed ? card.reversed : card.upright;
-      const title = `🔮 ไพ่ทาโร่ประจำวันของ ${userName}: ${card.name_en} (${card.name_th}) ${isReversed ? '(กลับหัว)' : '(หัวตั้ง)'}`;
+      const title = `🔮 ไพ่ทาโรต์ประจำวันของ ${userName} 🔮\n✨ ${card.name_en} (${card.name_th}) ${isReversed ? '• [กลับหัว]' : '• [หัวตั้ง]'}`;
 
-      const description = `*${details.quote}*\n\n` +
-        `### 🐱 คำทำนายรายวันจาก PurrPaw\n${details.general}\n\n` +
+      const description = `> *${details.quote}*\n\n` +
+        `### 🐱 คำทำนายภาพรวม\n${details.general}\n\n` +
         `### ❤️ ความรักและความสัมพันธ์\n${details.love}\n\n` +
         `### 💼 การงานและการเงิน\n${details.work_finance}\n\n` +
-        `### 🍀 สุขภาพและอารมณ์\n${details.health_emotion}\n\n` +
-        `### 🐾 คำแนะนำจากอุ้งเท้าวิเศษ\n${details.advice}`;
+        `### 🍀 สุขภาพและสภาวะอารมณ์\n${details.health_emotion}\n\n` +
+        `### 🐾 อุ้งเท้าวิเศษเตือนใจ\n${details.advice}`;
 
       const embed = new EmbedBuilder()
         .setTitle(title)
@@ -677,7 +678,7 @@ async function handleTarotReading(interaction, type) {
         .setDescription(description)
         .setImage(`attachment://tarot-${card.id}.png`)
         .setTimestamp()
-        .setFooter({ text: 'PurrPaw Tarot Reading', iconURL: interaction.client.user.displayAvatarURL() });
+        .setFooter({ text: 'PurrPaw Tarot Reading • มิติแห่งดวงชะตาและปัญญา', iconURL: interaction.client.user.displayAvatarURL() });
 
       return interaction.editReply({
         content: `🔮 **ดวงชะตาของ <@${interaction.user.id}> ได้รับการทำนายแล้วเมี๊ยว!** 🐾`,
@@ -711,11 +712,11 @@ async function handleTarotReading(interaction, type) {
       const attachment = new AttachmentBuilder(imageBuffer, { name: `tarot-spread.png` });
 
       const mainEmbed = new EmbedBuilder()
-        .setTitle(`🔮 ทำนายดวง 3 ใบของ ${userName} (อดีต - ปัจจุบัน - อนาคต) 🔮`)
+        .setTitle(`🔮 คำทำนายไพ่ทาโรต์ 3 มิติของ ${userName} (อดีต - ปัจจุบัน - อนาคต) 🔮`)
         .setColor('#FFB6C1')
         .setImage('attachment://tarot-spread.png')
         .setTimestamp()
-        .setFooter({ text: 'PurrPaw Tarot Spread', iconURL: interaction.client.user.displayAvatarURL() });
+        .setFooter({ text: 'PurrPaw Tarot Spread • วงล้อแห่งกาลเวลา', iconURL: interaction.client.user.displayAvatarURL() });
 
       const embeds = [mainEmbed];
       const labels = ['PAST (อดีต)', 'PRESENT (ปัจจุบัน)', 'FUTURE (อนาคต)'];
@@ -725,12 +726,12 @@ async function handleTarotReading(interaction, type) {
         const isReversed = reverseds[i];
         const details = isReversed ? card.reversed : card.upright;
 
-        const cardDesc = `*${details.quote}*\n\n` +
-          `* **🐱 คำทำนาย:** ${details.general}\n` +
-          `* **🐾 คำแนะนำ:** ${details.advice}`;
+        const cardDesc = `> *${details.quote}*\n\n` +
+          `**🐱 คำทำนายภาพรวม:**\n${details.general}\n\n` +
+          `**🐾 อุ้งเท้าวิเศษเตือนใจ:**\n${details.advice}`;
 
         const cardEmbed = new EmbedBuilder()
-          .setTitle(`🌟 ${labels[i]}: ${card.name_en} (${card.name_th}) ${isReversed ? '(กลับหัว)' : '(หัวตั้ง)'}`)
+          .setTitle(`🌟 ${labels[i]} : ${card.name_en} (${card.name_th}) ${isReversed ? '• [กลับหัว]' : '• [หัวตั้ง]'}`)
           .setDescription(cardDesc)
           .setColor('#FFB6C1');
 
@@ -1178,14 +1179,15 @@ client.on('interactionCreate', async (interaction) => {
 
     if (interaction.customId === 'staff_ticket_create') {
       const member = interaction.member;
+      const hasSupporter = member.roles.cache.has(ROLES.SUPPORTER);
       const hasStaff = member.roles.cache.has(ROLES.STAFF);
       const hasMod = member.roles.cache.has(ROLES.MODERATOR);
       const hasAdmin = member.roles.cache.has(ROLES.ADMIN);
       const isAdministrator = member.permissions.has(PermissionFlagsBits.Administrator);
 
-      if (!hasStaff && !hasMod && !hasAdmin && !isAdministrator) {
+      if (!hasSupporter && !hasStaff && !hasMod && !hasAdmin && !isAdministrator) {
         return interaction.reply({
-          content: '❌ เฉพาะทีมงาน (Staff / Moderator / Admin) เท่านั้นที่สามารถเปิด Ticket นี้ได้',
+          content: '❌ เฉพาะทีมงาน (Supporter / Staff / Moderator / Admin) เท่านั้นที่สามารถเปิด Ticket นี้ได้',
           ephemeral: true
         });
       }
@@ -1222,12 +1224,13 @@ client.on('interactionCreate', async (interaction) => {
 
     if (interaction.customId === 'staff_ticket_search_trigger' || interaction.customId === 'staff_ticket_search_again') {
       const member = interaction.member;
+      const hasSupporter = member.roles.cache.has(ROLES.SUPPORTER);
       const hasStaff = member.roles.cache.has(ROLES.STAFF);
       const hasMod = member.roles.cache.has(ROLES.MODERATOR);
       const hasAdmin = member.roles.cache.has(ROLES.ADMIN);
       const isAdministrator = member.permissions.has(PermissionFlagsBits.Administrator);
 
-      if (!hasStaff && !hasMod && !hasAdmin && !isAdministrator) {
+      if (!hasSupporter && !hasStaff && !hasMod && !hasAdmin && !isAdministrator) {
         return interaction.reply({
           content: '❌ เฉพาะทีมงานเท่านั้นที่สามารถสืบค้นประวัติ Ticket ได้',
           ephemeral: true
@@ -1323,6 +1326,7 @@ client.on('interactionCreate', async (interaction) => {
         const guild = interaction.guild;
 
         // Find Roles by ID
+        const supporterRole = guild.roles.cache.get(ROLES.SUPPORTER);
         const staffRole = guild.roles.cache.get(ROLES.STAFF);
         const modRole = guild.roles.cache.get(ROLES.MODERATOR);
         const adminRole = guild.roles.cache.get(ROLES.ADMIN);
@@ -1389,6 +1393,19 @@ client.on('interactionCreate', async (interaction) => {
           permissionOverwrites.push({
             id: activeTicketRole.id,
             deny: [PermissionFlagsBits.ViewChannel]
+          });
+        }
+
+        // Allow Supporter
+        if (supporterRole) {
+          permissionOverwrites.push({
+            id: supporterRole.id,
+            allow: [
+              PermissionFlagsBits.ViewChannel,
+              PermissionFlagsBits.SendMessages,
+              PermissionFlagsBits.ReadMessageHistory,
+              PermissionFlagsBits.ManageChannels
+            ]
           });
         }
 
@@ -1523,18 +1540,19 @@ client.on('interactionCreate', async (interaction) => {
           });
         }
 
-        // Check permission: Creator, or Staff / Moderator / Admin roles
+        // Check permission: Creator, or Supporter / Staff / Moderator / Admin roles
         const isCreator = interaction.user.id === ticket.creator_id;
         const member = interaction.member;
         
+        const hasSupporterRole = member.roles.cache.has(ROLES.SUPPORTER);
         const hasStaffRole = member.roles.cache.has(ROLES.STAFF);
         const hasModRole = member.roles.cache.has(ROLES.MODERATOR);
         const hasAdminRole = member.roles.cache.has(ROLES.ADMIN);
         const isAdministrator = member.permissions.has(PermissionFlagsBits.Administrator);
 
-        if (!isCreator && !hasStaffRole && !hasModRole && !hasAdminRole && !isAdministrator) {
+        if (!isCreator && !hasSupporterRole && !hasStaffRole && !hasModRole && !hasAdminRole && !isAdministrator) {
           return interaction.editReply({
-            content: '❌ คุณไม่มีสิทธิ์ในการปิด Ticket นี้ เฉพาะเจ้าของเรื่อง หรือทีมงานระดับ 🛡️ Staff ขึ้นไปเท่านั้น'
+            content: '❌ คุณไม่มีสิทธิ์ในการปิด Ticket นี้ เฉพาะเจ้าของเรื่อง หรือทีมงานระดับ 🛡️ Supporter ขึ้นไปเท่านั้น'
           });
         }
 
@@ -1688,16 +1706,17 @@ client.on('interactionCreate', async (interaction) => {
           });
         }
 
-        // Check permission: Staff / Moderator / Admin roles
+        // Check permission: Supporter / Staff / Moderator / Admin roles
         const member = interaction.member;
+        const hasSupporterRole = member.roles.cache.has(ROLES.SUPPORTER);
         const hasStaffRole = member.roles.cache.has(ROLES.STAFF);
         const hasModRole = member.roles.cache.has(ROLES.MODERATOR);
         const hasAdminRole = member.roles.cache.has(ROLES.ADMIN);
         const isAdministrator = member.permissions.has(PermissionFlagsBits.Administrator);
 
-        if (!hasStaffRole && !hasModRole && !hasAdminRole && !isAdministrator) {
+        if (!hasSupporterRole && !hasStaffRole && !hasModRole && !hasAdminRole && !isAdministrator) {
           return interaction.editReply({
-            content: '❌ คุณไม่มีสิทธิ์ในการปิด Staff Ticket นี้ เฉพาะทีมงานระดับ Staff ขึ้นไปเท่านั้น'
+            content: '❌ คุณไม่มีสิทธิ์ในการปิด Staff Ticket นี้ เฉพาะทีมงานระดับ Supporter ขึ้นไปเท่านั้น'
           });
         }
 
@@ -2211,6 +2230,7 @@ client.on('interactionCreate', async (interaction) => {
         const guild = interaction.guild;
 
         // Find Roles
+        const supporterRole = guild.roles.cache.get(ROLES.SUPPORTER);
         const staffRole = guild.roles.cache.get(ROLES.STAFF);
         const modRole = guild.roles.cache.get(ROLES.MODERATOR);
         const adminRole = guild.roles.cache.get(ROLES.ADMIN);
@@ -2265,7 +2285,17 @@ client.on('interactionCreate', async (interaction) => {
           }
         ];
 
-        // Allow Staff, Moderator, Admin
+        // Allow Supporter, Staff, Moderator, Admin
+        if (supporterRole) {
+          permissionOverwrites.push({
+            id: supporterRole.id,
+            allow: [
+              PermissionFlagsBits.ViewChannel,
+              PermissionFlagsBits.SendMessages,
+              PermissionFlagsBits.ReadMessageHistory
+            ]
+          });
+        }
         if (staffRole) {
           permissionOverwrites.push({
             id: staffRole.id,
@@ -2375,14 +2405,15 @@ client.on('interactionCreate', async (interaction) => {
 });
 
 async function performTicketSearch(interaction, query, isUpdate = false) {
-  // Check permission (Only Staff, Mod, Admin can search)
+  // Check permission (Only Supporter, Staff, Mod, Admin can search)
   const member = interaction.member;
+  const hasSupporter = member.roles.cache.has(ROLES.SUPPORTER);
   const hasStaff = member.roles.cache.has(ROLES.STAFF);
   const hasMod = member.roles.cache.has(ROLES.MODERATOR);
   const hasAdmin = member.roles.cache.has(ROLES.ADMIN);
   const isAdministrator = member.permissions.has(PermissionFlagsBits.Administrator);
 
-  if (!hasStaff && !hasMod && !hasAdmin && !isAdministrator) {
+  if (!hasSupporter && !hasStaff && !hasMod && !hasAdmin && !isAdministrator) {
     const replyOptions = { content: '❌ เฉพาะทีมงานเท่านั้นที่สามารถสืบค้นประวัติ Ticket ได้', ephemeral: true };
     if (isUpdate) return interaction.followUp(replyOptions);
     return interaction.reply(replyOptions);

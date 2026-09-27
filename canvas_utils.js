@@ -185,7 +185,7 @@ async function generateLevelUpCard(user, level, roleName = null, displayName = n
     ctx.textAlign = 'left';
     ctx.fillStyle = pinkColor;
     ctx.font = `italic 22px ${fontStack}`;
-    ctx.fillText(roleName || '🐾 Keep active to earn more rewards!', textX, 240);
+    ctx.fillText(roleName || '🐾 Keep active to earn more rewards!', textX, 240, barWidth);
 
     return await canvas.encode('png');
 }
@@ -233,12 +233,12 @@ async function generateRankCard(user, level, currentXP, requiredXP, displayName 
     ctx.fillStyle = pinkColor;
     ctx.font = `bold 36px ${fontStackBold}`;
     ctx.textAlign = 'left';
-    ctx.fillText(displayName || user.username, 260, 75);
+    ctx.fillText(displayName || user.username, 260, 75, 650);
 
     // Subtext / Badge
     ctx.fillStyle = 'rgba(255, 182, 193, 0.7)';
     ctx.font = `18px ${fontStack}`;
-    ctx.fillText('PurrPaw Member Identification Card', 260, 105);
+    ctx.fillText('PurrPaw Member Identification Card', 260, 105, 650);
 
     // Progress Bar
     const barWidth = 650;
@@ -271,7 +271,7 @@ async function generateRankCard(user, level, currentXP, requiredXP, displayName 
     ctx.textAlign = 'left';
     ctx.fillStyle = 'rgba(255, 182, 193, 0.6)';
     ctx.font = `italic 16px ${fontStack}`;
-    ctx.fillText(customStatus || '🐾 Type more in chat to increase your rank!', barX, 230);
+    ctx.fillText(customStatus || '🐾 Type more in chat to increase your rank!', barX, 230, barWidth);
 
     return await canvas.encode('png');
 }
@@ -359,7 +359,7 @@ async function generateLeaderboardCard(topUsers, customBackgroundURL = null) {
         ctx.fillStyle = i === 0 ? '#FFD700' : (i === 1 ? '#e0e0e0' : (i === 2 ? '#ffcc99' : pinkColor));
         ctx.font = `bold 18px ${fontStackBold}`;
         ctx.textAlign = 'left';
-        ctx.fillText(user.username, 200, yPos + 30);
+        ctx.fillText(user.username, 200, yPos + 30, 380);
 
         // 4. Level
         ctx.fillStyle = '#ffffff';
